@@ -9,7 +9,12 @@
         {{ item.text }}
       </option>
     </select>
-    <button @click="getBreweriesInCountry">양조장 가져오기</button>
+    <button @click="getBreweriesInCountry">
+      선택한 국가의 양조장 가져오기
+    </button>
+    <button @click="getBreweriesInCurrentLocation">
+      현재위치에서 가져오기
+    </button>
     <!-- 양조장 정보 출력 -->
     <ul>
       <li v-for="brewery in breweries" :key="brewery.id">
@@ -28,19 +33,35 @@ const country = ref<string>('')
 const countryOptions = ref(CountryOptions)
 const breweries = ref<any[]>([])
 
-onMounted(async () => {
-  await getUserLocation()
-  await getCountryFromCoordinates()
-})
-
 const getBreweriesInCountry = async () => {
   try {
     console.log(country.value)
+    const isValidCountry = countryOptions.value.some(
+      (option) => option.value === country.value,
+    )
+    if (!isValidCountry) {
+      alert('유효한 나라를 선택해주세요') // 에러 메시지를 수정
+      return
+    }
     const response = await axios.get(
       `https://api.openbrewerydb.org/breweries?by_country=${country.value}`,
     )
     const data = response.data
-    console.log({ data })
+    breweries.value = data
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const getBreweriesInCurrentLocation = async () => {
+  try {
+    await getUserLocation()
+    await getCountryFromCoordinates()
+    const response = await axios.get(
+      `https://api.openbrewerydb.org/breweries?by_country=${country.value}`,
+    )
+    const data = response.data
+    country.value = ''
     breweries.value = data
   } catch (error) {
     console.error(error)
