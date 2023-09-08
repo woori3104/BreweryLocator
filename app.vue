@@ -18,7 +18,9 @@
     <!-- 양조장 정보 출력 -->
     <ul>
       <li v-for="brewery in breweries" :key="brewery.id">
-        {{ brewery.name }}
+        <a :href="brewery.website_url" target="_blank">
+          {{ brewery.name }}
+        </a>
       </li>
     </ul>
   </div>
@@ -35,7 +37,6 @@ const breweries = ref<any[]>([])
 
 const getBreweriesInCountry = async () => {
   try {
-    console.log(country.value)
     const isValidCountry = countryOptions.value.some(
       (option) => option.value === country.value,
     )
@@ -48,6 +49,7 @@ const getBreweriesInCountry = async () => {
     )
     const data = response.data
     breweries.value = data
+    console.log({ breweries })
   } catch (error) {
     console.error(error)
   }
@@ -75,7 +77,6 @@ const getCountryFromCoordinates = async () => {
     )
     const data = response.data
     if (data && data.address && data.address.country) {
-      console.log({ data })
       country.value = data.address.country
     }
   } catch (error) {
